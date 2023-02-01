@@ -9,7 +9,7 @@ exports.getHospitals = (req,res,next) => {
 //@route    GET /api/v1/hospitals/:id
 //@access   Public
 exports.getHospital = (req,res,next) => {
-    res.status(200).json({success:true, msg:`Get hospital: ${req.params.id}`});
+    res.status(200).json({success:true, msg:`Get hospital: ${req.params.hospitalId}`});
 }
 
 //@desc     Create single hospital
@@ -23,12 +23,12 @@ exports.createHospital = (req,res,next) => {
 //@route    PUT /api/v1/hospitals/:id
 //@access   Private
 exports.updateHospital = (req,res,next) => {
-    res.status(200).json({success:true, msg:`Update hospital: ${req.params.id}`});
+    res.status(200).json({success:true, msg:`Update hospital: ${req.params.hospitalId}`});
 }
 
 //@desc     Delete single hospital
 //@route    DELETE /api/v1/hospitals/:id
 //@access   Private
 exports.deleteHospital = (req,res,next) => {
-    res.status(200).json({success:true, msg:`Delete hospital: ${req.params.id}`});
+    res.status(200).json({success:true, msg:`Delete hospital: ${req.params.hospitalId}`});
 }
