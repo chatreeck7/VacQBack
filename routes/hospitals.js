@@ -8,8 +8,8 @@ const { protect, authorize } = require('../middleware/auth');
 const appointmentRouter = require('./appointments');
 
 router.route('/').get(getHospitals).post(protect, authorize('admin') , createHospital);
+router.route('/vacCenters').get(getVacCenters);
 router.route('/:hospitalId').get(getHospital).put(protect, authorize('admin'),updateHospital).delete(protect, authorize(('admin')), deleteHospital);
 router.use('/:hospitalId/appointments', appointmentRouter);
-router.route('/vacCenters').get(getVacCenters);
 
 module.exports = router;
