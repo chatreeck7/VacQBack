@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
 var cors = require("cors");
 
 //Load env vars
@@ -25,6 +26,12 @@ app.use(mongoSanitize());
 app.use(helmet());
 //Prevent XSS attacks
 app.use(xss());
+//Rate Limiting
+const limiter = rateLimit({
+  windowsMs: 10 * 60 * 1000, //10 mins
+  max: 5,
+});
+app.use(limiter); 
 //Mount routers
 const hospitals = require("./routes/hospitals");
 const appointments = require("./routes/appointments");
