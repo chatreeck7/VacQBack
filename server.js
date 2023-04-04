@@ -6,6 +6,7 @@ const mongoSanitize = require("express-mongo-sanitize");
 const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
 var cors = require("cors");
 
 //Load env vars
@@ -31,7 +32,9 @@ const limiter = rateLimit({
   windowsMs: 10 * 60 * 1000, //10 mins
   max: 5,
 });
-app.use(limiter); 
+app.use(limiter);
+//Prevent http param pollutions
+app.use(hpp());
 //Mount routers
 const hospitals = require("./routes/hospitals");
 const appointments = require("./routes/appointments");
