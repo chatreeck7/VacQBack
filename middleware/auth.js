@@ -15,7 +15,7 @@ exports.protect = async (req, res, next) => {
     //     token = req.cookies.token;
     // }
     // Make sure token exists. So, we don't know who is accessing the route.
-    if (!token) {
+    if (!token || token =='null') {
         return res.status(401).json({ success: false, error: 'Not authorized to access this route' });
     }
     try {
