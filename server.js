@@ -7,6 +7,8 @@ const helmet = require("helmet");
 const xss = require("xss-clean");
 const rateLimit = require("express-rate-limit");
 const hpp = require("hpp");
+const swaggerJsDoc = require("swagger-jsdoc");
+const swaggerUI = require("swagger-ui-express");
 var cors = require("cors");
 
 //Load env vars
@@ -35,17 +37,28 @@ const limiter = rateLimit({
 app.use(limiter);
 //Prevent http param pollutions
 app.use(hpp());
+const swaggerOptions = {
+  swaggerDefinition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Library API",
+      version: "1.0.0",
+      description: "A simple Express VacQ API",
+    },
+  },
+  apis: ["./routes/*.js"],
+};
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(swaggerDocs));
 //Mount routers
 const hospitals = require("./routes/hospitals");
 const appointments = require("./routes/appointments");
 const auth = require("./routes/auth");
 //Cookie parser
 app.use(cookieParser());
-
 app.get("/", (req, res) => {
   res.status(200).json({ success: true, data: { id: 1 } });
 });
-
 app.use("/api/v1/hospitals", hospitals);
 app.use("/api/v1/auth", auth);
 app.use("/api/v1/appointments", appointments);
