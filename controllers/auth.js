@@ -26,32 +26,46 @@ exports.register = async (req, res, next) => {
 // @route   POST /api/v1/auth/login
 // @access  Public
 exports.login = async (req, res, next) => {
-  const { email, password } = req.body;
-  // Validate email & password
-  if (!email || !password) {
-    // next(new ErrorResponse('Please provide an email and password', 400));
+  try {
+    const { email, password } = req.body;
+    // Validate email & password
+    if (!email || !password) {
+      // next(new ErrorResponse('Please provide an email and password', 400));
+      return res
+        .status(400)
+        .json({
+          success: false,
+          error: "Please provide an email and password",
+        });
+    }
+    // Check for user
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      // next(new ErrorResponse('Invalid credentials', 401));
+      return res
+        .status(400)
+        .json({ success: false, error: "Cannot find given user's email" });
+    }
+    // Check if password matches
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      // next(new ErrorResponse('Invalid credentials', 401));
+      return res
+        .status(401)
+        .json({ success: false, error: "Invalid password" });
+    }
+    // Create token
+    // const token = user.getSignedJwtToken();
+    // res.status(200).json({ success: true, token: token})
+    sendTokenResponse(user, 200, res);
+  } catch (error) {
     return res
-      .status(400)
-      .json({ success: false, error: "Please provide an email and password" });
+      .status(401)
+      .json({
+        success: false,
+        msg: "Cannot convert email or password to string",
+      });
   }
-  // Check for user
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) {
-    // next(new ErrorResponse('Invalid credentials', 401));
-    return res
-      .status(400)
-      .json({ success: false, error: "Cannot find given user's email" });
-  }
-  // Check if password matches
-  const isMatch = await user.matchPassword(password);
-  if (!isMatch) {
-    // next(new ErrorResponse('Invalid credentials', 401));
-    return res.status(401).json({ success: false, error: "Invalid password" });
-  }
-  // Create token
-  // const token = user.getSignedJwtToken();
-  // res.status(200).json({ success: true, token: token})
-  sendTokenResponse(user, 200, res);
 };
 
 // Get token from model, create cookie and send response
@@ -69,15 +83,17 @@ const sendTokenResponse = (user, statusCode, res) => {
   if (process.env.NODE_ENV === "production") {
     options.secure = true;
   }
-  res.status(statusCode)/*.cookie("token", token, options)*/.json({
-    success: true,
-    //add for frontend
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    //end for frontend
-    token,
-  });
+  res
+    .status(statusCode) /*.cookie("token", token, options)*/
+    .json({
+      success: true,
+      //add for frontend
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      //end for frontend
+      token,
+    });
 };
 
 // @desc    Get current logged in user
@@ -88,5 +104,22 @@ exports.getMe = async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: user,
+  });
+};
+
+/**
+ * @desc Log user out / clear cookie
+ * @route GET /api/v1/auth/logout
+ * @access Private
+ */
+exports.logout = async (req, res, next) => {
+  res.cookie("token", "none", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 };
