@@ -32,7 +32,7 @@ app.use(xss());
 //Rate Limiting
 const limiter = rateLimit({
   windowsMs: 10 * 60 * 1000, //10 mins
-  max: 5,
+  max: 100,
 });
 app.use(limiter);
 //Prevent http param pollutions
@@ -45,6 +45,11 @@ const swaggerOptions = {
       version: "1.0.0",
       description: "A simple Express VacQ API",
     },
+    servers: [
+      {
+        url: "http://localhost:5001/api/v1",
+      }
+    ]
   },
   apis: ["./routes/*.js"],
 };
